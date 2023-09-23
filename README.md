@@ -95,3 +95,19 @@ The `tf_idf_method_2_sample_{train,validation,test}.csv` files contain the follo
 - `documents`: A list of documents for each sample.
 - `num_documents`: The number of documents for each sample.
 - `summary`: The summary of the sample.
+
+
+### TF
+
+We only take the documents present in one sample aka data point and create a `tf` matrix for it. \
+We then try to cluster the sample based on this matrix and take the dominant cluster. \
+We then assign the cluster to the sample and output the `tf_sample_{train,validation,test}.csv` file.
+
+> We use `CountVectorizer` from sklearn to create the `tf` matrix. \
+> We use a cluster size of 3 for the `KMeans` clustering algorithm.
+
+The `tf_sample_{train,validation,test}.csv` files contain the following columns:
+- Index of the sample.
+- `documents`: A list of documents for each sample.
+- `num_documents`: The number of documents for each sample.
+- `summary`: The summary of the sample.
