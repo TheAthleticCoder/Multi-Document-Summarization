@@ -1,2 +1,3 @@
 batch_script.sh
 *.py
+wandb/
