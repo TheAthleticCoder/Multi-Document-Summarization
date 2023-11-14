@@ -1,3 +1,5 @@
 batch_script.sh
 *.py
 wandb/
+artifacts/
+batch.out
