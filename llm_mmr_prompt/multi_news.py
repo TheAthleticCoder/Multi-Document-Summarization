@@ -105,12 +105,12 @@ print(template)
 
 df = pd.read_csv(args.file_path)
 df['mmr'] = df['mmr'].apply(eval)
-df['mmr_length'] = df['mmr'].apply(len)
-N = 50
-filtered_df = df[df['mmr_length'] > N]
-print(filtered_df.head())
+# df['mmr_length'] = df['mmr'].apply(len)
+# N = 50
+# filtered_df = df[df['mmr_length'] > N]
+# print(filtered_df.head())
 
-df = filtered_df
+# df = filtered_df
 df['generated_text'] = ""  # Adding a new column to the dataframe
 
 with open(args.new_file_save_path, 'w', newline='') as csvfile:
