@@ -1,4 +1,4 @@
-# MDES
+# Multi-Document Summarization
 
 Shubh Agarwal \
 Harshit Gupta \
