@@ -14,11 +14,13 @@ parser.add_argument("--topk", type=int, default=1000, help="Number of sentences 
 parser.add_argument("--output_file", type=str, default="generated_summaries.csv", help="Output file name for generated summaries")
 args = parser.parse_args()
 
+# Load dataset and remove unnecessary columns
 dataset = load_dataset("allenai/multixscience_dense_oracle")
 dataset["train"] = dataset["train"].remove_columns(['aid', 'mid', 'related_work'])
 dataset["validation"] = dataset["validation"].remove_columns(['aid', 'mid', 'related_work'])
 dataset["test"] = dataset["test"].remove_columns(['aid', 'mid', 'related_work'])
 
+# Process 'ref_abstract' column
 def process_ref_abstract(example):
     temp = " ||||| ".join(example['ref_abstract']['abstract'])
     example['ref_abstract'] = temp
@@ -27,6 +29,8 @@ def process_ref_abstract(example):
 dataset["train"] = dataset["train"].map(process_ref_abstract)
 dataset["validation"] = dataset["validation"].map(process_ref_abstract)
 dataset["test"] = dataset["test"].map(process_ref_abstract)
+
+# Rename columns
 dataset["train"]=dataset["train"].rename_column('abstract', 'summary')
 dataset["validation"]=dataset["validation"].rename_column('abstract', 'summary')
 dataset["test"]=dataset["test"].rename_column('abstract', 'summary')
@@ -34,10 +38,11 @@ dataset["train"]=dataset["train"].rename_column('ref_abstract', 'document')
 dataset["validation"]=dataset["validation"].rename_column('ref_abstract', 'document')
 dataset["test"]=dataset["test"].rename_column('ref_abstract', 'document')
 
+# Set device
 device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
-# device = f'cuda:1' if cuda.is_available() else 'cpu'
 print(device)
 
+# Load model and tokenizer
 model_ckpt = args.model_name
 tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
 model = BartForConditionalGeneration.from_pretrained(model_ckpt)
@@ -94,7 +99,9 @@ training_args = TrainingArguments(
     gradient_accumulation_steps=16
 )
 
-# Trainer
+from transformers import Trainer, TrainingArguments
+
+# Initialize the Trainer
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -104,10 +111,10 @@ trainer = Trainer(
     eval_dataset=dataset_tf["validation"]
 )
 
-# Training
+# Train the model
 trainer.train()
 
-# Consider the top 'topk' sentences from the test set
+# Select the top 'topk' sentences from the test set
 top_k = args.topk
 test_dataset = dataset["test"].select(range(top_k))
 
@@ -130,14 +137,14 @@ for idx, example in tqdm(enumerate(test_dataset)):
     decoded_summaries = [tokenizer.decode(s, skip_special_tokens=True, clean_up_tokenization_spaces=True) for s in summaries]
     generated_summaries.append(decoded_summaries[0])
 
-# Store the document, reference summary, and generated summary in a CSV file
+# Store the document, reference summary, and generated summary in a DataFrame
 output_df = pd.DataFrame({
     "Document": [example["document"] for example in test_dataset],
     "Reference Summary": [example["summary"] for example in test_dataset],
     "Generated Summary": generated_summaries
 })
 
-# Save the results to a CSV file
+# Save the DataFrame to a CSV file
 output_file = args.output_file
 output_df.to_csv(output_file, index=False)
 
