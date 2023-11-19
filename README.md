@@ -1,47 +1,46 @@
 # MDES
 
-## Progress Checklist
+Shubh Agarwal \
+Harshit Gupta \
+Shikhar Saxena
 
-```
-[ ] Checklist for Data Handling:
+## Project Description
 
-- [x] Separating the articles (using "|||||" as a delimiter) and storing them into a list.
-- [x] Checking the dataset and determining how many sources are there in each row (use `len(list)`).
-- [x] After deciding on a suitable number, take X random sources from the dataset and append them to the list for each row. This represents the noise (extra irrelevant summaries) from the dataset.
-
-[ ] Checklist for Hierarchical Clustering:
-
-- [x] Implement the Hierarchical Clustering algorithm using TF-IDF + Clustering to generate baseline results (similar to the assignment part 7).
-- [ ] Search and identify better algorithms for hierarchical clustering.
-- [ ] Implement the algorithms mentioned by Shubh and compare their performance to the baseline method above.
-```
+Our project addresses the challenge of multi-document summarization with Large Language Models (LLMs), which are constrained by token length limitations. We propose a novel approach that combines the strengths of LLMs and Maximal Marginal Relevance (MMR). MMR helps select the most relevant sentences from multiple documents, and then LLMs generate concise summaries from these sentences. This method overcomes LLMs' token limit challenge and improves summary quality by emphasizing important content. Our tests show this approach effectively produces informative, coherent, and concise summaries.
 
 ## File Structure
 
 ```
-|── README.md
-├── multi_news
-│   |── data
-│   ├── data_handling.ipynb
-│   ├── details.md
-│   ├── sample_test.csv
-│   ├── sample_train.csv
-│   ├── sample_validation.csv
+├── bart_baseline_code
+│   ├── bart_multi_news.py
+│   ├── bart_multi_x_science.py
+│   └── README.md
+├── baseline_metrics
+│   └── baseline_scores.ipynb
 ├── clustering
-│   |── tf_idf_method_1
-│   │   |── details.md
-│   │   |── tf_idf_method_1.ipynb
-│   │   |── tf_idf_method_1_sample_test.csv
-│   │   |── tf_idf_method_1_sample_train.csv
-│   │   |── tf_idf_method_1_sample_validation.csv
-│   │── tf_idf_method_2
-│   │   |── details.md
-│   │   |── tf_idf_method_2.ipynb
-│   │   |── tf_idf_method_2_sample_test.csv
-│   │   |── tf_idf_method_2_sample_train.csv
-│   │   |── tf_idf_method_2_sample_validation.csv
+│   ├── bert_embeddings.ipynb
+│   ├── evaluation.ipynb
+│   ├── tf
+│   │   └── tf.ipynb
+│   ├── tf_idf_method_1
+│   │   ├── details.md
+│   │   └── tf_idf_method_1.ipynb
+│   └── tf_idf_method_2
+│       ├── details.md
+│       └── tf_idf_method_2.ipynb
+├── dataset_handling
+│   ├── multi_news_dh.ipynb
+│   └── multi_x_sci_dh.ipynb
+├── gen_eval.py
+├── llm_mmr_prompt
+│   ├── multi_news.py
+│   ├── multi_x_sci.py
+│   └── README.md
+├── mmr
+│   └── mmr.ipynb
+├── README.md
+└── wandb_setup.ipynb
 ```
-
 
 ## Data
 
@@ -49,65 +48,63 @@ To access the full data, download from: https://drive.google.com/drive/folders/1
 
 ## Data Handling
 
-We take a sample of the complete data and built smaller versions. \
-The `sample_{train,val,test}.csv` files contain the following columns: \
-- `documents`: A list of documents for each sample.
-- `num_documents`: The number of documents for each sample.
-- `summary`: The summary of the sample.
+We have extensively used 'WANDB' to store our datasets and our preprocessed data. \
+https://wandb.ai/ire-shshsh/mdes/artifacts/dataset/multi_x_science_modified_sample/v0
 
-The `sample_{train,val,test}.csv` contains 2 documents for each sample which aren't part of the sample.
+## BART Baseline Code
 
-**Current Counts** \
-Train: 500 \
-Validation: 250 \
-Test: 250
+This script uses the BART model from the Hugging Face Transformers library to generate summaries of news articles. The script reads in a dataset of news articles, tokenizes the text, and feeds it into the BART model to generate a summary. The summaries are then saved to a CSV file.
 
-## Clustering Documents
+### Usage
 
-### TF-IDF
+Run the script with the following command:
 
-#### Method 1
+```sh
+python bart_multi_news.py --input_file <path_to_input_file> --output_file <path_to_output_file>
+```
 
-We take all the unique documents present in the corpus and create `one` tf-idf matrix. \
-We then take the `tf-idf` matrix and then fit each sample to the matrix and get the most dominant cluster. \
-We then assign the cluster to the sample and output the `tf_idf_method_1_sample_{train,validation,test}.csv` file.
+## Baseline Metrics
 
-> We use `TfidfVectorizer` from sklearn to create the `tf-idf` matrix. \
-> We use a cluster size of 3 for the `KMeans` clustering algorithm.
+It is used to calculate and display the baseline scores for the project. It uses the evaluate module to calculate various evaluation metrics like BLEU, METEOR, and ROUGE scores. These scores are used to evaluate the performance of the baseline models.
 
-The `tf_idf_method_1_sample_{train,validation,test}.csv` files contain the following columns:
-- Index of the sample.
-- `documents`: A list of documents for each sample.
-- `num_documents`: The number of documents for each sample.
-- `summary`: The summary of the sample.
+## Clustering
 
-#### Method 2
+This directory contains scripts and notebooks for clustering the dataset. The clustering is done using different methods and techniques.
 
-We only take the documents present in one sample aka data point and create a `tf-idf` matrix for it. \
-We then try to cluster the sample based on this matrix and take the dominant cluster. \
-We then assign the cluster to the sample and output the `tf_idf_method_2_sample_{train,validation,test}.csv` file.
+### Contents
 
-> We use `TfidfVectorizer` from sklearn to create the `tf-idf` matrix. \
-> We use a cluster size of 3 for the `KMeans` clustering algorithm.
+- `bert_embeddings.ipynb`: This notebook contains the code for generating BERT embeddings for the dataset.
 
-The `tf_idf_method_2_sample_{train,validation,test}.csv` files contain the following columns:
-- Index of the sample.
-- `documents`: A list of documents for each sample.
-- `num_documents`: The number of documents for each sample.
-- `summary`: The summary of the sample.
+- `evaluation.ipynb`: This notebook is used to evaluate the performance of the clustering methods.
 
+- `tf/`: This directory contains a notebook `tf.ipynb` for performing clustering using TensorFlow.
 
-### TF
+- `tf_idf_method_1/`: This directory contains a notebook `tf_idf_method_1.ipynb` and a detailed explanation `details.md` for performing clustering using the first method of TF-IDF.
 
-We only take the documents present in one sample aka data point and create a `tf` matrix for it. \
-We then try to cluster the sample based on this matrix and take the dominant cluster. \
-We then assign the cluster to the sample and output the `tf_sample_{train,validation,test}.csv` file.
+- `tf_idf_method_2/`: This directory contains a notebook `tf_idf_method_2.ipynb` and a detailed explanation `details.md` for performing clustering using the second method of TF-IDF.
 
-> We use `CountVectorizer` from sklearn to create the `tf` matrix. \
-> We use a cluster size of 3 for the `KMeans` clustering algorithm.
+## Dataset Handling
 
-The `tf_sample_{train,validation,test}.csv` files contain the following columns:
-- Index of the sample.
-- `documents`: A list of documents for each sample.
-- `num_documents`: The number of documents for each sample.
-- `summary`: The summary of the sample.
+This directory contains notebooks for the preprocessing of the datasets. We also had sampled the dataset so as to work with smaller datasets during development.
+
+## LLM MMR Prompt
+
+This directory contains scripts for generating summaries using a language model. The scripts use the Hugging Face Transformers library to load pre-trained models such as Mistral and generate summaries based on the input data.
+
+### Usage
+
+To run the scripts, use the following command:
+
+```sh
+python <script_name> --model_id <model_id> --file_path <input_file_path> --new_file_save_path <output_file_path>
+```
+
+Replace <script_name> with either multi_news.py or multi_x_sci.py, <model_id> with the ID of the Hugging Face model to use (for example, mistralai/Mistral-7B-Instruct-v0.1), <input_file_path> with the path to the input CSV file, and <output_file_path> with the path where the output CSV file should be saved.
+
+## MMR
+
+This notebook contains the implementation of the MMR algorithm. It includes functions for calculating similarity scores, selecting sentences based on MMR, and extracting the most important sentences for the summary.
+
+## W&B Setup
+
+This notebook contains the code for setting up W&B for the project. It is used to log the artifacts to W&B.
