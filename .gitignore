@@ -2,4 +2,3 @@ batch_script.sh
 wandb/
 artifacts/
 batch.out
-mmr.py
